@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 from flask import Flask, request, abort
 import os
+import json
 
 #Setting up path to the current working directory
 abspath = os.path.abspath(__file__)
@@ -28,10 +29,11 @@ def showAllPatients():
             name = str(row[0]) + ' ' + str(row[1]) + ' ' + str(row[2])
         patientDict[count] = {'Name': name, 'Gender': row[3], 'DOB': row[4], 'Address': row[5], 'Phone': row[6], 'InsuranceNumber': row[7]}
         count += 1
-    print(patientDict)
+    patientJson = json.dumps(patientDict)
+    return patientJson
 
 
-showAllPatients()
+print(showAllPatients())
 #Initialization of Flask's endpoints
 # application = Flask(__name__)
 #application.add_url_rule("/", "index", index)
