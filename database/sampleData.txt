@@ -1,0 +1,53 @@
+.headers ON
+.mode column
+
+INSERT INTO Hospital (Name, Address)
+VALUES ('Westshore Primary Care', '26908 Detroit Rd #201, Westlake, OH 44145');
+
+INSERT INTO Room (Purpose, Occupancy, RoomNumber)
+VALUES ('CAT SCAN', 5, '101'),
+		('GENERAL', 4, '102'),
+		('TEST ROOM', 5, '103');
+
+.print DOCTOR-QUALIFICATION-DOCTORS_QUALIFICATIONS
+INSERT INTO Doctor (FirstName, MiddleName, LastName, Address, Assignment, Phone, EmployeeNumber, HospitalID)
+VALUES ('Johnathan', 'A', 'Bravo', '123 Real St., Bellevue, WA 98003', 'Physician', '4259859622', 001001, 1),
+		('Mary', NULL, 'Smerikanich', '1235 Not Real St., Bellevue, WA 98005', 'Pediatrician', '4231869695', 001002, 1);
+
+INSERT INTO Qualification (Name, Issuer)
+VALUES ('Physician', 'Harvard University');
+
+INSERT INTO DOCTORS_QUALIFICATIONS
+VALUES (1, 1, '2012-10-18');
+
+.print PATIENT-MEDICATION-PRESCRIPTION-DIAGNOSIS-PATIENTS_DIAGNOSES
+INSERT INTO Patient (DoctorID, FirstName, LastName, Gender, DateOfBirth, ADdress, Phone, InsuranceNumber, HospitalID)
+VALUES (1, 'Michael', 'Smith', 'Male', '1991-09-19', '21515 11th Ave NE, Bothell, WA 98001', '2069851232', 111000111, 1),
+		(1, 'Sarah', 'Smith', 'Female', '1995-10-16', '213 105th Ave SE, Bothell, WA 98001', '5519811232', 111000112, 1);
+
+INSERT INTO MEDICATION (NationalDrugCode, Name, MaxDosage)
+VALUES (000090029, 'Xanax', '2mg'),
+		(6787762559, 'Oxycodone', '5mg');
+		
+INSERT INTO PRESCRIPTION (PatientID, MedicationID, PrescribedAmount, Refill)
+VALUES (1, 1, '20 2mg Pills', 1),
+		(2, 2, '10 5mg Pills', 0);
+
+INSERT INTO DIAGNOSIS (ConditionName)
+VALUES ('Flu'),
+		('Lung Cancer'),
+		('Bronchitis');
+
+INSERT INTO PATIENTS_DIAGNOSES (PatientID, DiagnosisID, Remarks, DiagnosisDate)
+VALUES (1, 1, 'Wet cough, high temperature', '2018-12-01'),
+		(2, 3, 'Wet cough, difficult to breathe', '2019-02-02');
+
+.print APPOINTMENT-APPOINTMENT_DOCTORS
+INSERT INTO Appointment (PatientID, RoomID, StartTime, Duration, Description)
+VALUES (1, 2, '2019-03-02 09:00:00', '60 minutes', 'Yearly Checkup');
+
+INSERT INTO APPOINTMENT_DOCTORS
+VALUES (1, 1);
+
+
+		

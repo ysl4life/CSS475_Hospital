@@ -1,0 +1,128 @@
+CREATE TABLE PATIENTS_DIAGNOSES (
+	PatientID			INTEGER not null,
+	DiagnosisID			INTEGER not null,
+	Remarks				VARCHAR[300] not null,
+	DiagnosisDate		VARCHAR[15] not null,
+	
+	Primary Key (PatientID, DiagnosisID),
+	Foreign Key (PatientID) references Patient (ID),
+	Foreign Key (DiagnosisID) references Diagnosis (ID)
+);
+
+CREATE TABLE Diagnosis (
+	ID					INTEGER not null,
+	ConditionName		VARCHAR[50] not null unique,
+	
+	Primary Key (ID)
+);
+
+CREATE TABLE Patient (
+	ID					Integer not null,
+	DoctorID			Integer not null,
+	FirstName			VARCHAR[30] not null,
+	MiddleName			VARCHAR[30],
+	LastName			VARCHAR[30] not null,
+	Gender				VARCHAR[10] not null,
+	DateOfBirth			VARCHAR[15] not null,
+	Address				VARCHAR[50] not null,
+	Phone				VARCHAR[20] not null,
+	InsuranceNumber		INTEGER not null unique,
+	HospitalID			INTEGER not null,
+	
+	Primary Key (ID),
+	Foreign Key (DoctorID) references Doctor (ID),
+	Foreign Key (HospitalID) references Hospital (ID)
+);
+
+CREATE TABLE Prescription (
+	PatientID			INTEGER not null,
+	MedicationID		INTEGER not null,
+	PrescribedAmount	VARCHAR[15] not null,
+	Refill				BOOLEAN not null,
+	
+	Primary Key (PatientID, MedicationID),
+	Foreign Key (PatientID) references Patient (ID),
+	Foreign Key (MedicationID) references Medication (ID)
+);
+
+CREATE TABLE Medication (
+	ID					INTEGER not null,
+	NationalDrugCode	INTEGER not null unique,
+	Name				VARCHAR[30] not null unique,
+	MaxDosage			VARCHAR[15] not null,
+	
+	Primary Key (ID)
+);
+
+CREATE TABLE APPOINTMENT_DOCTORS (
+	DoctorID			INTEGER not null,
+	AppointmentID		INTEGER not null,
+	
+	Primary Key (DoctorID, AppointmentID)
+	Foreign Key (DoctorID) references Doctor (ID),
+	Foreign Key (AppointmentID) references Appointment (ID)
+);
+
+CREATE TABLE Appointment (
+	ID					INTEGER not null,
+	PatientID			INTEGER not null,
+	RoomID				INTEGER not null,
+	StartTime			VARCHAR[15] not null,
+	Duration			VARCHAR[15] not null,
+	Description			VARCHAR[300] not null,
+	
+	Primary Key (ID),
+	Foreign Key (PatientID) references Patient (ID),
+	Foreign Key (RoomID) references Room (ID)
+);
+
+CREATE TABLE Doctor (
+	ID					INTEGER not null,
+	FirstName			VARCHAR[30] not null,
+	MiddleName			VARCHAR[30],
+	LastName			VARCHAR[30] not null,
+	Address				VARCHAR[50] not null,
+	Assignment			VARCHAR[30] not null,
+	Phone				VARCHAR[20] not null unique,
+	Pager				INTEGER unique,
+	EmployeeNumber		INTEGER not null unique,
+	HospitalID			INTEGER not null,
+	
+	Primary Key (ID),
+	Foreign Key (HospitalID) references Hospital (ID)
+);
+
+CREATE TABLE Hospital (
+	ID					INTEGER not null,
+	Name				VARCHAR[30] not null,
+	Address				VARCHAR[50] not null,
+	
+	Primary Key (ID)
+);
+
+CREATE TABLE Room (
+	ID					INTEGER not null,
+	Purpose				VARCHAR[30] not null,
+	Occupancy			INTEGER not null,
+	RoomNumber			VARCHAR[15] not null unique,
+	
+	Primary Key (ID)
+);
+
+CREATE TABLE DOCTORS_QUALIFICATIONS (
+	DoctorID			INTEGER not null,
+	QualificationID 	INTEGER not null,
+	DateAchieved		VARCHAR[15] not null,
+	
+	Primary Key (DoctorID, QualificationID),
+	Foreign Key (DoctorID) references Doctor (ID),
+	Foreign Key (QualificationID) references Qualification (ID)
+);
+
+CREATE TABLE Qualification (
+	ID					INTEGER not null,
+	Name				VARCHAR[50] not null,
+	Issuer				VARCHAR[30] not null,
+	
+	Primary Key (ID)
+);
