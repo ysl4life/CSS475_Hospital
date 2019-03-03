@@ -27,11 +27,11 @@ CREATE TABLE Patient (
 	Address				VARCHAR[50] not null,
 	Phone				VARCHAR[20] not null,
 	InsuranceNumber		INTEGER not null unique,
-	HospitalID			INTEGER not null,
+	OfficeID			INTEGER not null,
 	
 	Primary Key (ID),
 	Foreign Key (DoctorID) references Doctor (ID),
-	Foreign Key (HospitalID) references Hospital (ID)
+	Foreign Key (OfficeID) references Office (ID)
 );
 
 CREATE TABLE Prescription (
@@ -86,16 +86,17 @@ CREATE TABLE Doctor (
 	Phone				VARCHAR[20] not null unique,
 	Pager				INTEGER unique,
 	EmployeeNumber		INTEGER not null unique,
-	HospitalID			INTEGER not null,
+	OfficeID			INTEGER not null,
 	
 	Primary Key (ID),
-	Foreign Key (HospitalID) references Hospital (ID)
+	Foreign Key (OfficeID) references Office (ID)
 );
 
-CREATE TABLE Hospital (
+CREATE TABLE Office (
 	ID					INTEGER not null,
 	Name				VARCHAR[30] not null,
 	Address				VARCHAR[50] not null,
+	Phone				VARCHAR[20] not null unique,
 	
 	Primary Key (ID)
 );
