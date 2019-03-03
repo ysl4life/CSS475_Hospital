@@ -10,9 +10,8 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 database = 'hospitalDB.db'
-#connection = sqlite3.connect(database)
 
-app = Flask(__name__)
+app = Flask(__name__) #initialize Flask app
 
 #Checks if Patient has middle name, returns FirstName + MiddleName + LastName as Name
 def checkMiddleName(firstName, middleName, lastName):
