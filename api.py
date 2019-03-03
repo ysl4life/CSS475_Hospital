@@ -175,6 +175,39 @@ def removePatient(insuranceNum):
             return True
     else:
         return False
+
+#updates general info of patient.
+@app.route('/updatePatient/<firstName>/<middleName>/<lastName>/<gender>/<address>/<phone>/<newInsuranceNum>/<oldInsuranceNum>', methods = ['POST'])
+def updatePatient(firstName, middleName, lastName, gender, address, phone, newInsuranceNum, oldInsuranceNum):
+    if firstName == 'None': firstName = None
+    if middleName == 'None': middleName = None
+    if lastName == 'None': lastName = None
+    if gender == 'None': gender = None
+    if address == 'None': address = None
+    if phone == 'None': phone = None
+    if newInsuranceNum == 'None': newInsuranceNum = None
+    if doesExist(oldInsuranceNum) == True:
+        with sqlite3.connect(database) as connection:
+            cursor = connection.cursor()
+            if firstName != None:
+                cursor.execute('UPDATE Patient SET FirstName = ? WHERE InsuranceNumber = ?;', (str(firstName), int(oldInsuranceNum)))
+            if middleName != None:
+                cursor.execute('UPDATE Patient SET MiddleName = ? WHERE InsuranceNumber = ?;', (str(middleName), int(oldInsuranceNum)))
+            if lastName != None:
+                cursor.execute('UPDATE Patient SET LastName = ? WHERE InsuranceNumber = ?;', (str(lastName), int(oldInsuranceNum)))
+            if gender != None:
+                cursor.execute('UPDATE Patient SET gender = ? WHERE InsuranceNumber = ?;', (str(gender), int(oldInsuranceNum)))
+            if address != None:
+                cursor.execute('UPDATE Patient SET address = ? WHERE InsuranceNumber = ?;', (str(address), int(oldInsuranceNum)))
+            if phone != None:
+                cursor.execute('UPDATE Patient SET phone = ? WHERE InsuranceNumber = ?;', (str(phone), int(oldInsuranceNum)))
+            if newInsuranceNum != None:
+                cursor.execute('UPDATE Patient SET InsuranceNumber = ? WHERE InsuranceNumber = ?;', (str(newInsuranceNum), int(oldInsuranceNum)))
+            connection.commit()
+            return True
+    else:
+        return False
+    
   
 #Done:
 # Show all patients in the DB
@@ -182,6 +215,7 @@ def removePatient(insuranceNum):
 # Show prescribed medication, diagnoses, appoitnments of specific patient
 # Add patient to the database
 # Remove patient from the database
+# Update Patient's info
 #TO DO:
 # SEARCH FOR APPOINTMENTS FOR SPECIFIC PATIENT
 # SHOW ALL APPOINTMENTS IN THE DB
