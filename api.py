@@ -11,7 +11,7 @@ os.chdir(dname)
 
 database = 'hospitalDB.db'
 
-app = Flask(__name__) #initialize Flask app
+#app = Flask(__name__) #initialize Flask app
 
 #Checks if Patient has middle name, returns FirstName + MiddleName + LastName as Name
 def checkMiddleName(firstName, middleName, lastName):
@@ -41,7 +41,7 @@ def showAllPatients():
     return patientJson
 
 #find Patient in DB by insurance number or name. If no input = return all patients
-@app.route('/findPatient/<firstName>/<middleName>/<lastName>/<insuranceNum>')
+#@app.route('/findPatient/<firstName>/<middleName>/<lastName>/<insuranceNum>')
 def findPatient(firstName, middleName, lastName, insuranceNum):
     if firstName == 'None': firstName = None
     if lastName == 'None': lastName = None
@@ -109,7 +109,7 @@ def getPrescription(insuranceNum):
         connection.commit()
     return prescriptionsDict
 
-#returns appointments
+#returns appointments for specific patient
 def getAppointments(insuranceNum):
     with sqlite3.connect(database) as connection:
         cursor = connection.cursor()
@@ -122,7 +122,7 @@ def getAppointments(insuranceNum):
     return appointmentDict
 
 #returns all data associated with patient
-@app.route('/getPatientInfo/<insuranceNum>')
+#@app.route('/getPatientInfo/<insuranceNum>')
 def getPatientInfo(insuranceNum):
     diagnoses = getDiagnosis(insuranceNum)
     prescription = getPrescription(insuranceNum)
@@ -143,7 +143,7 @@ def doesExist(insuranceNum):
             return True
 
 #adds a new patient to the DB
-@app.route('/addPatient/<firstName>/<middleName>/<lastName>/<gender>/<DOB>/<address>/<phone>/<insuranceNum>', methods = ['POST'])
+#@app.route('/addPatient/<firstName>/<middleName>/<lastName>/<gender>/<DOB>/<address>/<phone>/<insuranceNum>', methods = ['POST'])
 def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum):
     doctorID = 1
     officeID = 1
@@ -165,7 +165,7 @@ def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, ins
         return False
 
 #removes patient from the database
-@app.route('/removePatient/<insuranceNum>', methods = ['POST'])
+#@app.route('/removePatient/<insuranceNum>', methods = ['POST'])
 def removePatient(insuranceNum):
     if doesExist(insuranceNum) == True: #check if the patient exists in the DB
         with sqlite3.connect(database) as connection:
@@ -177,7 +177,7 @@ def removePatient(insuranceNum):
         return False
 
 #updates general info of patient.
-@app.route('/updatePatient/<firstName>/<middleName>/<lastName>/<gender>/<address>/<phone>/<newInsuranceNum>/<oldInsuranceNum>', methods = ['POST'])
+#@app.route('/updatePatient/<firstName>/<middleName>/<lastName>/<gender>/<address>/<phone>/<newInsuranceNum>/<oldInsuranceNum>', methods = ['POST'])
 def updatePatient(firstName, middleName, lastName, gender, address, phone, newInsuranceNum, oldInsuranceNum):
     if firstName == 'None': firstName = None
     if middleName == 'None': middleName = None
@@ -208,7 +208,21 @@ def updatePatient(firstName, middleName, lastName, gender, address, phone, newIn
     else:
         return False
     
-  
+#Returns all appointments that have not been done up to this point yet
+#@app.route(/getFutureAppointments')
+def getAllAppointments():
+    with sqlite3.connect(database) as connection:
+        cursor = connection.cursor()
+        cursor.execute('SELECT StartTime, Duration, Description, RoomNumber FROM Appointment, Room WHERE Appointment.RoomID = Room.ID AND datetime(?) < Appointment.StartTime ORDER BY StartTime ASC;', ('now', ))
+        rows = cursor.fetchall()
+        appointmentDict = dict()
+        for row in rows:
+            appointmentDict[row[0]] = {'Duration': row[1], 'Description': row[2], 'RoomNumber': row[3]}
+        appointmentsJson = json.dumps(appointmentDict)
+    return appointmentsJson
+        
+
+
 #Done:
 # Show all patients in the DB
 # Search for specific patient and return general info (from Patient table)
@@ -217,12 +231,11 @@ def updatePatient(firstName, middleName, lastName, gender, address, phone, newIn
 # Remove patient from the database
 # Update Patient's info
 #TO DO:
-# SEARCH FOR APPOINTMENTS FOR SPECIFIC PATIENT
 # SHOW ALL APPOINTMENTS IN THE DB
 # SHOW APPOINTMENTS FOR SPECIFIC DATE
 # ADD APPOINTMENT
 # REMOVE APPOINTMENT
 
-if __name__ == "__main__":
-    app.debug = True
-    app.run()
+# if __name__ == "__main__":
+#     app.debug = True
+#     app.run()
