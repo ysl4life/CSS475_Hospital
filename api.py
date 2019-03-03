@@ -24,7 +24,7 @@ def checkMiddleName(firstName, middleName, lastName):
 def showAllPatients():
     cursor = connection.cursor()
     cursor.execute(
-        'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT;'
+        'SELECT Patient.FirstName, Patient.MiddleName, Patient.LastName, Gender, DateOfBirth, Patient.Address, Patient.Phone, InsuranceNumber, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM PATIENT, DOCTOR WHERE Patient.DoctorID = Doctor.ID;'
         )
     rows = cursor.fetchall()
     
@@ -32,7 +32,7 @@ def showAllPatients():
     count = 0
     for row in rows:
         name = checkMiddleName(row[0], row[1], row[2])
-        patientDict[count] = {'Name': name, 'Gender': row[3], 'DOB': row[4], 'Address': row[5], 'Phone': row[6], 'InsuranceNumber': row[7]}
+        patientDict[count] = {'Name': name, 'Gender': row[3], 'DOB': row[4], 'Address': row[5], 'Phone': row[6], 'InsuranceNumber': row[7], 'PrimaryDoctor': row[8]}
         count += 1
     patientJson = json.dumps(patientDict)
     return patientJson
@@ -46,17 +46,17 @@ def findPatient(firstName, middleName, lastName, insuranceNum):
     #Search by insuranceNum if its present
     elif insuranceNum != None:
         cursor.execute(
-        'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT WHERE InsuranceNumber = ?;', (int(insuranceNum), )
+        'SELECT Patient.FirstName, Patient.MiddleName, Patient.LastName, Gender, DateOfBirth, Patient.Address, Patient.Phone, InsuranceNumber, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM PATIENT, DOCTOR WHERE InsuranceNumber = ? AND Patient.DoctorID = Doctor.ID;', (int(insuranceNum), )
         )
     #if insuranceNum is not present, search other params
     elif insuranceNum == None:
         if middleName == None or middleName == 'None':
             cursor.execute(
-            'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT WHERE FirstName = ? AND LastName = ?;', (str(firstName), str(lastName))
+            'SELECT Patient.FirstName, Patient.MiddleName, Patient.LastName, Gender, DateOfBirth, Patient.Address, Patient.Phone, InsuranceNumber, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM PATIENT, DOCTOR WHERE FirstName = ? AND LastName = ? AND Patient.DoctorID = Doctor.ID;', (str(firstName), str(lastName))
             )
         else:
             cursor.execute(
-            'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT WHERE FirstName = ? AND MiddleName = ? AND LastName = ?;', (str(firstName), str(middleName), str(lastName))
+            'SELECT Patient.FirstName, Patient.MiddleName, Patient.LastName, Gender, DateOfBirth, Patient.Address, Patient.Phone, InsuranceNumber, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM PATIENT, DOCTOR WHERE FirstName = ? AND MiddleName = ? AND LastName = ? AND Patient.DoctorID = Doctor.ID;', (str(firstName), str(middleName), str(lastName))
             )     
 
     rows = cursor.fetchall()
@@ -64,7 +64,7 @@ def findPatient(firstName, middleName, lastName, insuranceNum):
     count = 0
     for row in rows:
         name = checkMiddleName(row[0], row[1], row[2])
-        patientDict[count] = {'Name': name, 'Gender': row[3], 'DOB': row[4], 'Address': row[5], 'Phone': row[6], 'InsuranceNumber': row[7]}
+        patientDict[count] = {'Name': name, 'Gender': row[3], 'DOB': row[4], 'Address': row[5], 'Phone': row[6], 'InsuranceNumber': row[7], 'PrimaryDoctor': row[8]}
         count += 1
     patientJson = json.dumps(patientDict)
     return patientJson
@@ -104,6 +104,7 @@ def getAppointments(insuranceNum):
         appointmentDict['Appointments'] = {row[0]: {'Duration': row[1], 'Description': row[2], 'Doctor': row[3]}}
     return appointmentDict
 
+#returns all data associated with patient
 def getPatientInfo(insuranceNum):
     diagnoses = getDiagnosis(insuranceNum)
     prescription = getPrescription(insuranceNum)
@@ -112,8 +113,8 @@ def getPatientInfo(insuranceNum):
     patientInfoJson = json.dumps(patientInfoDict)
     return patientInfoJson
 
-#print(getDiagnosis(111000112))
-print(getPatientInfo(111000111))
+#print(getPatientInfo(111000111))
+print(showAllPatients())
 
 #Initialization of Flask's endpoints
 # application = Flask(__name__)
