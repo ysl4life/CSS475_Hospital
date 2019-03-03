@@ -2,30 +2,30 @@
 .mode column
 
 INSERT INTO OFFICE (Name, Address, Phone)
-VALUES ('Westshore Doctor's Office', '26908 Detroit Rd #201, Westlake, OH 44145', '4259854122');
+VALUES ('Westshore Doctor Office', '26908 Detroit Rd #201, Westlake, OH 44145', '4259854122');
 
 INSERT INTO Room (Purpose, Occupancy, RoomNumber)
-VALUES ('Doctor's Office', 5, '101'),
+VALUES ('Main Office', 5, '101'),
 		('GENERAL', 4, '102'),
 		('TEST ROOM', 5, '103');
 
 .print DOCTOR-QUALIFICATION-DOCTORS_QUALIFICATIONS
 INSERT INTO Doctor (FirstName, MiddleName, LastName, Address, Assignment, Phone, EmployeeNumber, OfficeID)
-VALUES ('Johnathan', 'A', 'Bravo', '123 Real St., Bellevue, WA 98003', 'Physician', '4259859622', 001001, 1),
+VALUES ('Johnathan', 'A', 'Bravo', '123 Real St., Bellevue, WA 98003', 'Physician', '4259859622', 001001, 1);
 
 INSERT INTO Qualification (Name, Issuer)
-VALUES ('Physician', 'Harvard University')
+VALUES ('Physician', 'Harvard University'),
 		('BOSSMAN', 'BOSSMAN UNIVERSITY');
 		
 
 INSERT INTO DOCTORS_QUALIFICATIONS
-VALUES (1, 1, '2012-10-18')
+VALUES (1, 1, '2012-10-18'),
 		(1, 2, '2017-10-18');
 
 .print PATIENT-MEDICATION-PRESCRIPTION-DIAGNOSIS-PATIENTS_DIAGNOSES
 INSERT INTO Patient (DoctorID, FirstName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID)
 VALUES (1, 'Michael', 'Smith', 'Male', '1991-09-19', '21515 11th Ave NE, Bothell, WA 98001', '2069851232', 111000111, 1),
-		(1, 'Sarah', 'Smith', 'Female', '1995-10-16', '213 105th Ave SE, Bothell, WA 98001', '5519811232', 111000112, 1)
+		(1, 'Sarah', 'Smith', 'Female', '1995-10-16', '213 105th Ave SE, Bothell, WA 98001', '5519811232', 111000112, 1),
 		(1, 'Alex', 'McQueen', 'Male', '1997-07-07', '11th Ave NE, Bothell, WA 98001', '4513211231', '111000113', 1);
 
 INSERT INTO MEDICATION (NationalDrugCode, Name, MaxDosage)
@@ -47,13 +47,13 @@ VALUES ('Flu'),
 INSERT INTO PATIENTS_DIAGNOSES (PatientID, DiagnosisID, Remarks, DiagnosisDate)
 VALUES (1, 1, 'Wet cough, high temperature', '2018-12-01'),
 		(2, 3, 'Wet cough, difficult to breathe', '2019-02-02'),
-		(2, 1, 'Hard to breathe', '2019-02-10';
+		(2, 1, 'Hard to breathe', '2019-02-10');
 
 .print APPOINTMENT-APPOINTMENT_DOCTORS
 INSERT INTO Appointment (PatientID, RoomID, StartTime, Duration, Description)
 VALUES (1, 1, '2019-03-02 09:00:00', '60 minutes', 'Yearly Checkup'),
-		(2, 1; '2019-03-05 09:00:00', '30 minutes', 'Flu Shot Checkup'),
-		(2, 1; '2019-03-09 09:00:00', '30 minutes', 'Weekly Checkup');
+		(2, 1, '2019-03-05 09:00:00', '30 minutes', 'Flu Shot Checkup'),
+		(2, 1, '2019-03-09 09:00:00', '30 minutes', 'Weekly Checkup');
 
 INSERT INTO APPOINTMENT_DOCTORS
 VALUES (1, 1),

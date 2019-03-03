@@ -60,13 +60,13 @@ def findPatient(firstName, middleName, lastName, insuranceNum):
             )
         #if insuranceNum is not present, search other params
         elif insuranceNum == None:
-            if middleName == None or middleName == 'None':
+            if middleName == None:
                 cursor.execute(
-                'SELECT Patient.FirstName, Patient.MiddleName, Patient.LastName, Gender, DateOfBirth, Patient.Address, Patient.Phone, InsuranceNumber, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM PATIENT, DOCTOR WHERE FirstName = ? AND LastName = ? AND Patient.DoctorID = Doctor.ID;', (str(firstName), str(lastName))
+                'SELECT Patient.FirstName, Patient.MiddleName, Patient.LastName, Gender, DateOfBirth, Patient.Address, Patient.Phone, InsuranceNumber, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM PATIENT, DOCTOR WHERE Patient.FirstName = ? AND Patient.LastName = ? AND Patient.DoctorID = Doctor.ID;', (str(firstName), str(lastName))
                 )
             else:
                 cursor.execute(
-                'SELECT Patient.FirstName, Patient.MiddleName, Patient.LastName, Gender, DateOfBirth, Patient.Address, Patient.Phone, InsuranceNumber, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM PATIENT, DOCTOR WHERE FirstName = ? AND MiddleName = ? AND LastName = ? AND Patient.DoctorID = Doctor.ID;', (str(firstName), str(middleName), str(lastName))
+                'SELECT Patient.FirstName, Patient.MiddleName, Patient.LastName, Gender, DateOfBirth, Patient.Address, Patient.Phone, InsuranceNumber, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM PATIENT, DOCTOR WHERE Patient.FirstName = ? AND Patient.MiddleName = ? AND Patient.LastName = ? AND Patient.DoctorID = Doctor.ID;', (str(firstName), str(middleName), str(lastName))
                 )     
 
         rows = cursor.fetchall()
