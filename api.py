@@ -37,7 +37,7 @@ def showAllPatients():
     patientJson = json.dumps(patientDict)
     return patientJson
 
-#find Patient in DB by insurance number or name
+#find Patient in DB by insurance number or name. If no input = return all patients
 def findPatient(firstName, middleName, lastName, insuranceNum):
     cursor = connection.cursor()
     #if all parameters are empty, return all patients in DB
@@ -58,7 +58,7 @@ def findPatient(firstName, middleName, lastName, insuranceNum):
             cursor.execute(
             'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT WHERE FirstName = ? AND MiddleName = ? AND LastName = ?;', (str(firstName), str(middleName), str(lastName))
             )     
-    
+
     rows = cursor.fetchall()
     patientDict = dict()
     count = 0
@@ -69,7 +69,51 @@ def findPatient(firstName, middleName, lastName, insuranceNum):
     patientJson = json.dumps(patientDict)
     return patientJson
 
+#returns info about patient's diagnoses
+def getDiagnosis(insuranceNum):
+    cursor = connection.cursor()
+    cursor.execute('SELECT Diagnosis.ConditionName, PATIENTS_DIAGNOSES.DiagnosisDate, PATIENTS_DIAGNOSES.Remarks FROM PATIENT, PATIENTS_DIAGNOSES, DIAGNOSIS WHERE Patient.insurancenumber = ? AND Diagnosis.id = Patients_Diagnoses.DiagnosisID AND PAtients_Diagnoses.PatientID = Patient.ID;', (int(insuranceNum), )
+    )
+    rows = cursor.fetchall()
+    diagnosisDict = dict()
+    for row in rows:
+        diagnosisDict['Diagnoses'] = {row[0]: {'Diagnosed on': row[1], 'Remarks': row[2]}}
+    return diagnosisDict
 
+#returns prescribed medication
+def getPrescription(insuranceNum):
+    cursor = connection.cursor()
+    cursor.execute('SELECT Medication.name, Prescription.PrescribedAmount, Medication.MaxDosage, Prescription.Refill FROM Patient, Prescription, Medication WHERE Patient.insurancenumber = ? AND Medication.id = Prescription.medicationID AND Patient.id = Prescription.patientID;', (int(insuranceNum), ))
+    rows = cursor.fetchall()
+    prescriptionsDict = dict()
+    for row in rows:
+        if int(row[3]) == 1:
+            refill = 'Yes'
+        else:
+            refill = 'No'
+        prescriptionsDict['PrescribedMedication'] = {row[0]: {'PrescribedAmount': row[1], 'MaxDosage': row[2], 'Refill': refill}}
+    return prescriptionsDict
+
+#returns appointments
+def getAppointments(insuranceNum):
+    cursor = connection.cursor()
+    cursor.execute('SELECT Appointment.StartTime, Duration, Description, (Doctor.FirstName || " " || Doctor.LastName) as Doctor FROM Patient, Appointment, Doctor, APPOINTMENT_DOCTORS WHERE Patient.id = Appointment.PatientID AND Appointment.ID = APPOINTMENT_DOCTORS.AppointmentID AND Doctor.id = Appointment_Doctors.doctorID AND Patient.insurancenumber = ?;', (int(insuranceNum), ))
+    rows = cursor.fetchall()
+    appointmentDict = dict()
+    for row in rows:
+        appointmentDict['Appointments'] = {row[0]: {'Duration': row[1], 'Description': row[2], 'Doctor': row[3]}}
+    return appointmentDict
+
+def getPatientInfo(insuranceNum):
+    diagnoses = getDiagnosis(insuranceNum)
+    prescription = getPrescription(insuranceNum)
+    appointments = getAppointments(insuranceNum)
+    patientInfoDict = {**diagnoses, **prescription, **appointments}
+    patientInfoJson = json.dumps(patientInfoDict)
+    return patientInfoJson
+
+#print(getDiagnosis(111000112))
+print(getPatientInfo(111000111))
 
 #Initialization of Flask's endpoints
 # application = Flask(__name__)
