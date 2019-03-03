@@ -175,9 +175,20 @@ def removePatient(insuranceNum):
             return True
     else:
         return False
+  
+#Done:
+# Show all patients in the DB
+# Search for specific patient and return general info (from Patient table)
+# Show prescribed medication, diagnoses, appoitnments of specific patient
+# Add patient to the database
+# Remove patient from the database
+#TO DO:
+# SEARCH FOR APPOINTMENTS FOR SPECIFIC PATIENT
+# SHOW ALL APPOINTMENTS IN THE DB
+# SHOW APPOINTMENTS FOR SPECIFIC DATE
+# ADD APPOINTMENT
+# REMOVE APPOINTMENT
 
-print(removePatient('111000115'))    
-    
 if __name__ == "__main__":
     app.debug = True
     app.run()
