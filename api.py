@@ -131,16 +131,16 @@ def getPatientInfo(insuranceNum):
     patientInfoJson = json.dumps(patientInfoDict)
     return patientInfoJson
 
-#If the Patients exists in the DB return False, if doesn't exist return True
-def canRegister(insuranceNum):
+#If the Patients exists in the DB return True, if doesn't exist return False
+def doesExist(insuranceNum):
     with sqlite3.connect(database) as connection:
         cursor = connection.cursor()
         cursor.execute('SELECT count(*) FROM PATIENT WHERE InsuranceNumber = ?;', (int(insuranceNum), ))
         rows = cursor.fetchall()
         if int(rows[0][0]) == 0:
-            return True
-        else:
             return False
+        else:
+            return True
 
 #adds a new patient to the DB
 @app.route('/addPatient/<firstName>/<middleName>/<lastName>/<gender>/<DOB>/<address>/<phone>/<insuranceNum>', methods = ['POST'])
@@ -150,17 +150,33 @@ def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, ins
    
     if middleName == 'None': middleName = None
     
-    if canRegister(insuranceNum) == True:
+    if doesExist(insuranceNum) == False: #check if the patient doesn't exist in the DB
         with sqlite3.connect(database) as connection:
             cursor = connection.cursor()
             if middleName != None:
                 cursor.execute('INSERT INTO Patient (DoctorID, FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', (doctorID, firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum, officeID))
+                connection.commit()
                 return True
             else:
                 cursor.execute('INSERT INTO Patient (DoctorID, FirstName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);', (doctorID, firstName, lastName, gender, DOB, address, phone, insuranceNum, officeID))
+                connection.commit()
                 return True
     else:
         return False
+
+#removes patient from the database
+@app.route('/removePatient/<insuranceNum>', methods = ['POST'])
+def removePatient(insuranceNum):
+    if doesExist(insuranceNum) == True: #check if the patient exists in the DB
+        with sqlite3.connect(database) as connection:
+            cursor = connection.cursor()
+            cursor.execute('DELETE FROM PATIENT WHERE InsuranceNumber = ?;', (int(insuranceNum), ))
+            connection.commit()
+            return True
+    else:
+        return False
+
+print(removePatient('111000115'))    
     
 if __name__ == "__main__":
     app.debug = True
