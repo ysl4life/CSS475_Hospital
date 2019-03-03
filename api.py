@@ -130,6 +130,37 @@ def getPatientInfo(insuranceNum):
     patientInfoDict = {**diagnoses, **prescription, **appointments}
     patientInfoJson = json.dumps(patientInfoDict)
     return patientInfoJson
+
+#If the Patients exists in the DB return False, if doesn't exist return True
+def canRegister(insuranceNum):
+    with sqlite3.connect(database) as connection:
+        cursor = connection.cursor()
+        cursor.execute('SELECT count(*) FROM PATIENT WHERE InsuranceNumber = ?;', (int(insuranceNum), ))
+        rows = cursor.fetchall()
+        if int(rows[0][0]) == 0:
+            return True
+        else:
+            return False
+
+#adds a new patient to the DB
+@app.route('/addPatient/<firstName>/<middleName>/<lastName>/<gender>/<DOB>/<address>/<phone>/<insuranceNum>', methods = ['POST'])
+def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum):
+    doctorID = 1
+    officeID = 1
+   
+    if middleName == 'None': middleName = None
+    
+    if canRegister(insuranceNum) == True:
+        with sqlite3.connect(database) as connection:
+            cursor = connection.cursor()
+            if middleName != None:
+                cursor.execute('INSERT INTO Patient (DoctorID, FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', (doctorID, firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum, officeID))
+                return True
+            else:
+                cursor.execute('INSERT INTO Patient (DoctorID, FirstName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);', (doctorID, firstName, lastName, gender, DOB, address, phone, insuranceNum, officeID))
+                return True
+    else:
+        return False
     
 if __name__ == "__main__":
     app.debug = True
