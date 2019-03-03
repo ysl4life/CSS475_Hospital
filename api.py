@@ -210,7 +210,7 @@ def updatePatient(firstName, middleName, lastName, gender, address, phone, newIn
     
 #Returns all appointments that have not been done up to this point yet
 #@app.route(/getFutureAppointments')
-def getAllAppointments():
+def getFutureAppointments():
     with sqlite3.connect(database) as connection:
         cursor = connection.cursor()
         cursor.execute('SELECT StartTime, Duration, Description, RoomNumber FROM Appointment, Room WHERE Appointment.RoomID = Room.ID AND datetime(?) < Appointment.StartTime ORDER BY StartTime ASC;', ('now', ))
