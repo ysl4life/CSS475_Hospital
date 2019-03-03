@@ -12,28 +12,65 @@ os.chdir(dname)
 database = 'hospitalDB.db'
 connection = sqlite3.connect(database)
 
+#Checks if Patient has middle name, returns FirstName + MiddleName + LastName as Name
+def checkMiddleName(firstName, middleName, lastName):
+    if middleName == None:
+        name = str(firstName) + ' ' + str(lastName)
+    else:
+        name = str(firstName) + ' ' + str(middleName) + ' ' + str(lastName)
+    return name
 
+#Returns JSON of all patients
 def showAllPatients():
     cursor = connection.cursor()
     cursor.execute(
-        'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth AS DOB, Address, Phone, InsuranceNumber FROM PATIENT;'
+        'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT;'
         )
     rows = cursor.fetchall()
     
     patientDict = dict()
     count = 0
     for row in rows:
-        if row[1] == None:
-            name = str(row[0]) + ' ' + str(row[2])
+        name = checkMiddleName(row[0], row[1], row[2])
+        patientDict[count] = {'Name': name, 'Gender': row[3], 'DOB': row[4], 'Address': row[5], 'Phone': row[6], 'InsuranceNumber': row[7]}
+        count += 1
+    patientJson = json.dumps(patientDict)
+    return patientJson
+
+#find Patient in DB by insurance number or name
+def findPatient(firstName, middleName, lastName, insuranceNum):
+    cursor = connection.cursor()
+    #if all parameters are empty, return all patients in DB
+    if firstName == None and lastName == None and middleName == None and insuranceNum == None:
+        return showAllPatients()
+    #Search by insuranceNum if its present
+    elif insuranceNum != None:
+        cursor.execute(
+        'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT WHERE InsuranceNumber = ?;', (int(insuranceNum), )
+        )
+    #if insuranceNum is not present, search other params
+    elif insuranceNum == None:
+        if middleName == None or middleName == 'None':
+            cursor.execute(
+            'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT WHERE FirstName = ? AND LastName = ?;', (str(firstName), str(lastName))
+            )
         else:
-            name = str(row[0]) + ' ' + str(row[1]) + ' ' + str(row[2])
+            cursor.execute(
+            'SELECT FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber FROM PATIENT WHERE FirstName = ? AND MiddleName = ? AND LastName = ?;', (str(firstName), str(middleName), str(lastName))
+            )     
+    
+    rows = cursor.fetchall()
+    patientDict = dict()
+    count = 0
+    for row in rows:
+        name = checkMiddleName(row[0], row[1], row[2])
         patientDict[count] = {'Name': name, 'Gender': row[3], 'DOB': row[4], 'Address': row[5], 'Phone': row[6], 'InsuranceNumber': row[7]}
         count += 1
     patientJson = json.dumps(patientDict)
     return patientJson
 
 
-print(showAllPatients())
+
 #Initialization of Flask's endpoints
 # application = Flask(__name__)
 #application.add_url_rule("/", "index", index)
