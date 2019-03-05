@@ -178,11 +178,12 @@ def removePatient(insuranceNum):
 
 #updates general info of patient.
 #@app.route('/updatePatient/<firstName>/<middleName>/<lastName>/<gender>/<address>/<phone>/<newInsuranceNum>/<oldInsuranceNum>', methods = ['POST'])
-def updatePatient(firstName, middleName, lastName, gender, address, phone, newInsuranceNum, oldInsuranceNum):
+def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, newInsuranceNum, oldInsuranceNum):
     if firstName == 'None': firstName = None
     if middleName == 'None': middleName = None
     if lastName == 'None': lastName = None
     if gender == 'None': gender = None
+    if DOB == 'None': DOB = None
     if address == 'None': address = None
     if phone == 'None': phone = None
     if newInsuranceNum == 'None': newInsuranceNum = None
@@ -197,6 +198,8 @@ def updatePatient(firstName, middleName, lastName, gender, address, phone, newIn
                 cursor.execute('UPDATE Patient SET LastName = ? WHERE InsuranceNumber = ?;', (str(lastName), int(oldInsuranceNum)))
             if gender != None:
                 cursor.execute('UPDATE Patient SET gender = ? WHERE InsuranceNumber = ?;', (str(gender), int(oldInsuranceNum)))
+            if DOB != None:
+                cursor.execute('UPDATE Patient SET DateOfBirth = ? WHERE InsuranceNumber = ?;', (str(DOB), int(oldInsuranceNum)))
             if address != None:
                 cursor.execute('UPDATE Patient SET address = ? WHERE InsuranceNumber = ?;', (str(address), int(oldInsuranceNum)))
             if phone != None:
