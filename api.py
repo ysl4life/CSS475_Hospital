@@ -132,7 +132,7 @@ def getPatientInfo(insuranceNum):
     return patientInfoJson
 
 #If the Patients exists in the DB return True, if doesn't exist return False
-def doesExist(insuranceNum):
+def doesPatientExist(insuranceNum):
     with sqlite3.connect(database) as connection:
         cursor = connection.cursor()
         cursor.execute('SELECT count(*) FROM PATIENT WHERE InsuranceNumber = ?;', (int(insuranceNum), ))
@@ -150,7 +150,7 @@ def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, ins
    
     if middleName == 'None': middleName = None
     
-    if doesExist(insuranceNum) == False: #check if the patient doesn't exist in the DB
+    if doesPatientExist(insuranceNum) == False: #check if the patient doesn't exist in the DB
         with sqlite3.connect(database) as connection:
             cursor = connection.cursor()
             if middleName != None:
@@ -167,7 +167,7 @@ def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, ins
 #removes patient from the database
 #@app.route('/removePatient/<insuranceNum>', methods = ['POST'])
 def removePatient(insuranceNum):
-    if doesExist(insuranceNum) == True: #check if the patient exists in the DB
+    if doesPatientExist(insuranceNum) == True: #check if the patient exists in the DB
         with sqlite3.connect(database) as connection:
             cursor = connection.cursor()
             cursor.execute('DELETE FROM PATIENT WHERE InsuranceNumber = ?;', (int(insuranceNum), ))
@@ -187,7 +187,7 @@ def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, 
     if address == 'None': address = None
     if phone == 'None': phone = None
     if newInsuranceNum == 'None': newInsuranceNum = None
-    if doesExist(oldInsuranceNum) == True:
+    if doesPatientExist(oldInsuranceNum) == True:
         with sqlite3.connect(database) as connection:
             cursor = connection.cursor()
             if firstName != None:
@@ -228,6 +228,17 @@ def getAllAppointments(upcomingOnly):
         appointmentsJson = json.dumps(appointmentDict)
     return appointmentsJson
 
+def doesAppointmentExist(time):
+    with sqlite3.connect(database) as connection:
+        cursor = connection.cursor()
+        cursor.execute('SELECT count(*) FROM Appointment WHERE StartTime = ?;', (str(time), ))
+        rows = cursor.fetchall()
+        if int(rows[0][0]) == 0:
+            return False
+        else:
+            return True
+
+#def updateAppointment(time, description, RoomNumber)
 
 #Done:
 # Show all patients in the DB
@@ -236,9 +247,8 @@ def getAllAppointments(upcomingOnly):
 # Add patient to the database
 # Remove patient from the database
 # Update Patient's info
-#TO DO:
 # SHOW ALL APPOINTMENTS IN THE DB
-# SHOW APPOINTMENTS FOR SPECIFIC DATE
+#TO DO:
 # ADD APPOINTMENT
 # REMOVE APPOINTMENT
 
