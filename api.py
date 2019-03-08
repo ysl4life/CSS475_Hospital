@@ -213,7 +213,7 @@ def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, 
     
 #Returns all appointments that have not been done up to this point yet
 #@app.route(/getAppointments/<upcomingOnly>')
-def getFutureAppointments(upcomingOnly):
+def getAllAppointments(upcomingOnly):
     if upcomingOnly == 'None': upcomingOnly = None
     with sqlite3.connect(database) as connection:
         cursor = connection.cursor()
