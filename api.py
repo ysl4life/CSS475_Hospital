@@ -228,6 +228,7 @@ def getAllAppointments(upcomingOnly):
         appointmentsJson = json.dumps(appointmentDict)
     return appointmentsJson
 
+#Verifies if Appointment exists by time
 def doesAppointmentExist(time):
     with sqlite3.connect(database) as connection:
         cursor = connection.cursor()
@@ -238,7 +239,27 @@ def doesAppointmentExist(time):
         else:
             return True
 
-#def updateAppointment(time, description, RoomNumber)
+#Updates appointment's description and roomNumber
+#@app.route(/updateAppointment/<time>/<description>/<roomNumber>', methods = ['POST'])
+def updateAppointment(time, description, roomNumber):
+    if description == 'None': description = None
+    if roomNumber == 'None': roomNumber = None
+    
+    if doesAppointmentExist(time) == True:
+        with sqlite3.connect(database) as connection:
+            cursor = connection.cursor()
+            if description != None:
+                cursor.execute('UPDATE Appointment SET Description = ? WHERE StartTime = ?;', (str(description), str(time)))
+            if roomNumber != None:
+                if roomNumber == '101':
+                    roomID = 1
+                if roomNumber == '102':
+                    roomID = 2
+                cursor.execute('UPDATE Appointment SET RoomID = ? WHERE StartTime = ?;', (str(roomID), str(time)))
+            connection.commit()
+            return True
+    return False
+
 
 #Done:
 # Show all patients in the DB
@@ -248,6 +269,7 @@ def doesAppointmentExist(time):
 # Remove patient from the database
 # Update Patient's info
 # SHOW ALL APPOINTMENTS IN THE DB
+# Update Appointment
 #TO DO:
 # ADD APPOINTMENT
 # REMOVE APPOINTMENT
