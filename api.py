@@ -212,18 +212,21 @@ def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, 
         return False
     
 #Returns all appointments that have not been done up to this point yet
-#@app.route(/getFutureAppointments')
-def getFutureAppointments():
+#@app.route(/getAppointments/<upcomingOnly>')
+def getFutureAppointments(upcomingOnly):
+    if upcomingOnly == 'None': upcomingOnly = None
     with sqlite3.connect(database) as connection:
         cursor = connection.cursor()
-        cursor.execute('SELECT StartTime, Duration, Description, RoomNumber FROM Appointment, Room WHERE Appointment.RoomID = Room.ID AND datetime(?) < Appointment.StartTime ORDER BY StartTime ASC;', ('now', ))
+        if upcomingOnly == None: #if upcomingOnly == None, show all appointments
+            cursor.execute('SELECT StartTime, Duration, Description, RoomNumber FROM Appointment, Room WHERE Appointment.RoomID = Room.ID ORDER BY StartTime ASC;')
+        else: #if upcomingOnly != None, show only future appointments
+            cursor.execute('SELECT StartTime, Duration, Description, RoomNumber FROM Appointment, Room WHERE Appointment.RoomID = Room.ID AND datetime(?) < Appointment.StartTime ORDER BY StartTime ASC;', ('now', ))
         rows = cursor.fetchall()
         appointmentDict = dict()
         for row in rows:
             appointmentDict[row[0]] = {'Duration': row[1], 'Description': row[2], 'RoomNumber': row[3]}
         appointmentsJson = json.dumps(appointmentDict)
     return appointmentsJson
-        
 
 
 #Done:
