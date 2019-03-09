@@ -1,9 +1,9 @@
 import sqlite3
 from sqlite3 import Error
 from flask import Flask, request, abort
-from flask_cors import CORS
 import os
 import json
+from flask_cors import CORS
 
 #Setting up path to the current working directory
 abspath = os.path.abspath(__file__)
@@ -274,7 +274,7 @@ def isTimeOccupied(startTime, duration):
              return True
 
 #Adds appointment to the DB
-@app.route('/addAppointment/<patientID/<roomNumber>/<startTime>/<duration>/<description>', methods = ['POST'])
+@app.route('/addAppointment/<patientid>/<roomnumber>/<starttime>/<duration>/<description>', methods = ['POST'])
 def addAppointment(patientID, roomNumber, startTime, duration, description):
     if isTimeOccupied(startTime, duration) == False:
         with sqlite3.connect(database) as connection:
