@@ -284,26 +284,6 @@ def addAppointment(patientID, roomNumber, startTime, duration, description):
 
 
 
-# def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum):
-#     doctorID = 1
-#     officeID = 1
-   
-#     if middleName == 'None': middleName = None
-    
-#     if doesPatientExist(insuranceNum) == False: #check if the patient doesn't exist in the DB
-#         with sqlite3.connect(database) as connection:
-#             cursor = connection.cursor()
-#             if middleName != None:
-#                 cursor.execute('INSERT INTO Patient (DoctorID, FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', (doctorID, firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum, officeID))
-#                 connection.commit()
-#                 return True
-#             else:
-#                 cursor.execute('INSERT INTO Patient (DoctorID, FirstName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);', (doctorID, firstName, lastName, gender, DOB, address, phone, insuranceNum, officeID))
-#                 connection.commit()
-#                 return True
-#     else:
-#         return False
-
 #Done:
 # Show all patients in the DB
 # Search for specific patient and return general info (from Patient table)
@@ -313,8 +293,8 @@ def addAppointment(patientID, roomNumber, startTime, duration, description):
 # Update Patient's info
 # SHOW ALL APPOINTMENTS IN THE DB
 # Update Appointment
-#TO DO:
 # ADD APPOINTMENT
+#TO DO:
 # REMOVE APPOINTMENT
 
 # if __name__ == "__main__":
