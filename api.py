@@ -229,10 +229,10 @@ def getAllAppointments(upcomingOnly):
     return appointmentsJson
 
 #Verifies if Appointment exists by time
-def doesAppointmentExist(time):
+def doesAppointmentExist(startTime):
     with sqlite3.connect(database) as connection:
         cursor = connection.cursor()
-        cursor.execute('SELECT count(*) FROM Appointment WHERE StartTime = ?;', (str(time), ))
+        cursor.execute('SELECT count(*) FROM Appointment WHERE StartTime = ?;', (str(startTime), ))
         rows = cursor.fetchall()
         if int(rows[0][0]) == 0:
             return False
@@ -241,25 +241,68 @@ def doesAppointmentExist(time):
 
 #Updates appointment's description and roomNumber
 #@app.route(/updateAppointment/<time>/<description>/<roomNumber>', methods = ['POST'])
-def updateAppointment(time, description, roomNumber):
+def updateAppointment(startTime, description, roomNumber):
     if description == 'None': description = None
     if roomNumber == 'None': roomNumber = None
     
-    if doesAppointmentExist(time) == True:
+    if doesAppointmentExist(startTime) == True:
         with sqlite3.connect(database) as connection:
             cursor = connection.cursor()
             if description != None:
-                cursor.execute('UPDATE Appointment SET Description = ? WHERE StartTime = ?;', (str(description), str(time)))
+                cursor.execute('UPDATE Appointment SET Description = ? WHERE StartTime = ?;', (str(description), str(startTime)))
             if roomNumber != None:
                 if roomNumber == '101':
                     roomID = 1
                 if roomNumber == '102':
                     roomID = 2
-                cursor.execute('UPDATE Appointment SET RoomID = ? WHERE StartTime = ?;', (str(roomID), str(time)))
+                cursor.execute('UPDATE Appointment SET RoomID = ? WHERE StartTime = ?;', (str(roomID), str(startTime)))
             connection.commit()
             return True
     return False
 
+#if time slot is occupied, returns True, if not occupied, returns False
+def isTimeOccupied(startTime, duration):
+    with sqlite3.connect(database) as connection:
+        cursor = connection.cursor()
+        cursor.execute('''SELECT count(*) FROM Appointment WHERE (StartTime <= ? AND datetime(StartTime, '+' ||duration|| ' minutes') >= ?) OR (StartTime <= datetime(?, '+' ||?|| ' minutes') AND datetime(StartTime, '+' ||duration|| ' minutes') >= datetime(?, '+' ||?|| ' minutes'));''', (str(startTime), str(startTime), str(startTime), str(duration), str(startTime), str(duration)))
+        rows = cursor.fetchall()
+        if int(rows[0][0]) == 0:
+             return False
+        else:
+             return True
+
+#Adds appointment to the DB
+#@app.route(/addAppointment/<patientID/<roomNumber>/<startTime>/<duration>/<description>', methods = ['POST'])
+def addAppointment(patientID, roomNumber, startTime, duration, description):
+    if isTimeOccupied(startTime, duration) == False:
+        with sqlite3.connect(database) as connection:
+            cursor = connection.cursor()
+            cursor.execute('INSERT INTO Appointment (PatientID, RoomID, StartTime, Duration, Description) VALUES (?, ?, ?, ?, ?);', (patientID, roomNumber[2], startTime, duration, description))
+            cursor.execute('INSERT INTO Appointment_Doctors (DoctorID, AppointmentID) VALUES (?, last_rowid());', (1, ))
+            return True
+    return False
+
+
+
+# def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum):
+#     doctorID = 1
+#     officeID = 1
+   
+#     if middleName == 'None': middleName = None
+    
+#     if doesPatientExist(insuranceNum) == False: #check if the patient doesn't exist in the DB
+#         with sqlite3.connect(database) as connection:
+#             cursor = connection.cursor()
+#             if middleName != None:
+#                 cursor.execute('INSERT INTO Patient (DoctorID, FirstName, MiddleName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', (doctorID, firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum, officeID))
+#                 connection.commit()
+#                 return True
+#             else:
+#                 cursor.execute('INSERT INTO Patient (DoctorID, FirstName, LastName, Gender, DateOfBirth, Address, Phone, InsuranceNumber, OfficeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);', (doctorID, firstName, lastName, gender, DOB, address, phone, insuranceNum, officeID))
+#                 connection.commit()
+#                 return True
+#     else:
+#         return False
 
 #Done:
 # Show all patients in the DB

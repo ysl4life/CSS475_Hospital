@@ -68,7 +68,7 @@ CREATE TABLE Appointment (
 	PatientID			INTEGER not null,
 	RoomID				INTEGER not null,
 	StartTime			VARCHAR[15] not null,
-	Duration			VARCHAR[15] not null,
+	Duration			Integer,
 	Description			VARCHAR[300] not null,
 	
 	Primary Key (ID),
