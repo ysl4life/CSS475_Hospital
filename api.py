@@ -214,7 +214,7 @@ def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, 
         return False
     
 #Returns all appointments that have not been done up to this point yet
-@app.route(/getAppointments/<upcomingOnly>')
+@app.route('/getAppointments/<upcomingOnly>')
 def getAllAppointments(upcomingOnly):
     if upcomingOnly == 'None': upcomingOnly = None
     with sqlite3.connect(database) as connection:
@@ -242,7 +242,7 @@ def doesAppointmentExist(startTime):
             return True
 
 #Updates appointment's description and roomNumber
-@app.route(/updateAppointment/<time>/<description>/<roomNumber>', methods = ['POST'])
+@app.route('/updateAppointment/<time>/<description>/<roomNumber>', methods = ['POST'])
 def updateAppointment(startTime, description, roomNumber):
     if description == 'None': description = None
     if roomNumber == 'None': roomNumber = None
@@ -274,7 +274,7 @@ def isTimeOccupied(startTime, duration):
              return True
 
 #Adds appointment to the DB
-@app.route(/addAppointment/<patientID/<roomNumber>/<startTime>/<duration>/<description>', methods = ['POST'])
+@app.route('/addAppointment/<patientID/<roomNumber>/<startTime>/<duration>/<description>', methods = ['POST'])
 def addAppointment(patientID, roomNumber, startTime, duration, description):
     if isTimeOccupied(startTime, duration) == False:
         with sqlite3.connect(database) as connection:
@@ -285,7 +285,7 @@ def addAppointment(patientID, roomNumber, startTime, duration, description):
     return False
 
 #Removes appointment from DB
-@app.route(/removeAppointment/<starttime>, methods = ['POST'])
+@app.route('/removeAppointment/<starttime>', methods = ['POST'])
 def removeAppointment(startTime):
     if doesAppointmentExist(startTime) == True:
         with sqlite3.connect(database) as connection:
@@ -295,9 +295,6 @@ def removeAppointment(startTime):
             return True
     else:
         return False
-
-
-
 
 #Done:
 # Show all patients in the DB
