@@ -1,6 +1,7 @@
 import sqlite3
 from sqlite3 import Error
 from flask import Flask, request, abort
+from flask_cors import CORS
 import os
 import json
 
@@ -11,7 +12,8 @@ os.chdir(dname)
 
 database = 'hospitalDB.db'
 
-#app = Flask(__name__) #initialize Flask app
+app = Flask(__name__) #initialize Flask app
+CORS(app)
 
 #Checks if Patient has middle name, returns FirstName + MiddleName + LastName as Name
 def checkMiddleName(firstName, middleName, lastName):
@@ -41,7 +43,7 @@ def showAllPatients():
     return patientJson
 
 #find Patient in DB by insurance number or name. If no input = return all patients
-#@app.route('/findPatient/<firstName>/<middleName>/<lastName>/<insuranceNum>')
+@app.route('/findPatient/<firstName>/<middleName>/<lastName>/<insuranceNum>')
 def findPatient(firstName, middleName, lastName, insuranceNum):
     if firstName == 'None': firstName = None
     if lastName == 'None': lastName = None
@@ -122,7 +124,7 @@ def getAppointments(insuranceNum):
     return appointmentDict
 
 #returns all data associated with patient
-#@app.route('/getPatientInfo/<insuranceNum>')
+@app.route('/getPatientInfo/<insuranceNum>')
 def getPatientInfo(insuranceNum):
     diagnoses = getDiagnosis(insuranceNum)
     prescription = getPrescription(insuranceNum)
@@ -143,7 +145,7 @@ def doesPatientExist(insuranceNum):
             return True
 
 #adds a new patient to the DB
-#@app.route('/addPatient/<firstName>/<middleName>/<lastName>/<gender>/<DOB>/<address>/<phone>/<insuranceNum>', methods = ['POST'])
+@app.route('/addPatient/<firstName>/<middleName>/<lastName>/<gender>/<DOB>/<address>/<phone>/<insuranceNum>', methods = ['POST'])
 def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, insuranceNum):
     doctorID = 1
     officeID = 1
@@ -165,7 +167,7 @@ def addPatient(firstName, middleName, lastName, gender, DOB, address, phone, ins
         return False
 
 #removes patient from the database
-#@app.route('/removePatient/<insuranceNum>', methods = ['POST'])
+@app.route('/removePatient/<insuranceNum>', methods = ['POST'])
 def removePatient(insuranceNum):
     if doesPatientExist(insuranceNum) == True: #check if the patient exists in the DB
         with sqlite3.connect(database) as connection:
@@ -177,7 +179,7 @@ def removePatient(insuranceNum):
         return False
 
 #updates general info of patient.
-#@app.route('/updatePatient/<firstName>/<middleName>/<lastName>/<gender>/<address>/<phone>/<newInsuranceNum>/<oldInsuranceNum>', methods = ['POST'])
+@app.route('/updatePatient/<firstName>/<middleName>/<lastName>/<gender>/<address>/<phone>/<newInsuranceNum>/<oldInsuranceNum>', methods = ['POST'])
 def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, newInsuranceNum, oldInsuranceNum):
     if firstName == 'None': firstName = None
     if middleName == 'None': middleName = None
@@ -212,7 +214,7 @@ def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, 
         return False
     
 #Returns all appointments that have not been done up to this point yet
-#@app.route(/getAppointments/<upcomingOnly>')
+@app.route(/getAppointments/<upcomingOnly>')
 def getAllAppointments(upcomingOnly):
     if upcomingOnly == 'None': upcomingOnly = None
     with sqlite3.connect(database) as connection:
@@ -240,7 +242,7 @@ def doesAppointmentExist(startTime):
             return True
 
 #Updates appointment's description and roomNumber
-#@app.route(/updateAppointment/<time>/<description>/<roomNumber>', methods = ['POST'])
+@app.route(/updateAppointment/<time>/<description>/<roomNumber>', methods = ['POST'])
 def updateAppointment(startTime, description, roomNumber):
     if description == 'None': description = None
     if roomNumber == 'None': roomNumber = None
@@ -272,7 +274,7 @@ def isTimeOccupied(startTime, duration):
              return True
 
 #Adds appointment to the DB
-#@app.route(/addAppointment/<patientID/<roomNumber>/<startTime>/<duration>/<description>', methods = ['POST'])
+@app.route(/addAppointment/<patientID/<roomNumber>/<startTime>/<duration>/<description>', methods = ['POST'])
 def addAppointment(patientID, roomNumber, startTime, duration, description):
     if isTimeOccupied(startTime, duration) == False:
         with sqlite3.connect(database) as connection:
@@ -281,6 +283,19 @@ def addAppointment(patientID, roomNumber, startTime, duration, description):
             cursor.execute('INSERT INTO Appointment_Doctors (DoctorID, AppointmentID) VALUES (?, last_rowid());', (1, ))
             return True
     return False
+
+#Removes appointment from DB
+@app.route(/removeAppointment/<starttime>, methods = ['POST'])
+def removeAppointment(startTime):
+    if doesAppointmentExist(startTime) == True:
+        with sqlite3.connect(database) as connection:
+            cursor = connection.cursor()
+            cursor.execute('DELETE FROM Appointment WHERE StartTime = ?;', (startTime, ))
+            connection.commit()
+            return True
+    else:
+        return False
+
 
 
 
@@ -294,9 +309,8 @@ def addAppointment(patientID, roomNumber, startTime, duration, description):
 # SHOW ALL APPOINTMENTS IN THE DB
 # Update Appointment
 # ADD APPOINTMENT
-#TO DO:
 # REMOVE APPOINTMENT
 
-# if __name__ == "__main__":
-#     app.debug = True
-#     app.run()
+if __name__ == "__main__":
+    app.debug = True
+    app.run()
