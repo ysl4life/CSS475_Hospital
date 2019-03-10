@@ -179,7 +179,7 @@ def removePatient(insuranceNum):
         return False
 
 #updates general info of patient.
-@app.route('/updatePatient/<firstName>/<middleName>/<lastName>/<gender>/<address>/<phone>/<newInsuranceNum>/<oldInsuranceNum>', methods = ['POST'])
+@app.route('/updatePatient/<firstName>/<middleName>/<lastName>/<gender>/<DOB>/<address>/<phone>/<newInsuranceNum>/<oldInsuranceNum>', methods = ['PUT', 'POST', 'OPTIONS', 'GET'])
 def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, newInsuranceNum, oldInsuranceNum):
     if firstName == 'None': firstName = None
     if middleName == 'None': middleName = None
@@ -209,9 +209,9 @@ def updatePatient(firstName, middleName, lastName, gender, DOB, address, phone, 
             if newInsuranceNum != None:
                 cursor.execute('UPDATE Patient SET InsuranceNumber = ? WHERE InsuranceNumber = ?;', (str(newInsuranceNum), int(oldInsuranceNum)))
             connection.commit()
-            return True
+            return 'Success', 200
     else:
-        return False
+        return 'Error', 404
     
 #Returns all appointments that have not been done up to this point yet
 @app.route('/getAppointments/<upcomingOnly>')
@@ -242,22 +242,15 @@ def doesAppointmentExist(startTime):
             return True
 
 #Updates appointment's description and roomNumber
-@app.route('/updateAppointment/<time>/<description>/<roomNumber>', methods = ['POST'])
-def updateAppointment(startTime, description, roomNumber):
+@app.route('/updateAppointment/<time>/<description>', methods = ['PUT', 'OPTIONS', 'POST'])
+def updateAppointment(startTime, description):
     if description == 'None': description = None
-    if roomNumber == 'None': roomNumber = None
-    
+    startTime = startTime.replace('_', ' ')
     if doesAppointmentExist(startTime) == True:
         with sqlite3.connect(database) as connection:
             cursor = connection.cursor()
             if description != None:
                 cursor.execute('UPDATE Appointment SET Description = ? WHERE StartTime = ?;', (str(description), str(startTime)))
-            if roomNumber != None:
-                if roomNumber == '101':
-                    roomID = 1
-                if roomNumber == '102':
-                    roomID = 2
-                cursor.execute('UPDATE Appointment SET RoomID = ? WHERE StartTime = ?;', (str(roomID), str(startTime)))
             connection.commit()
             return True
     return False
@@ -310,4 +303,4 @@ def removeAppointment(startTime):
 
 if __name__ == "__main__":
     app.debug = True
-    app.run()
+    app.run(host = '0.0.0.0', port = '80')
