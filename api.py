@@ -242,7 +242,7 @@ def doesAppointmentExist(startTime):
             return True
 
 #Updates appointment's description and roomNumber
-@app.route('/updateAppointment/<time>/<description>', methods = ['PUT', 'OPTIONS', 'POST'])
+@app.route('/updateAppointment/<startTime>/<description>', methods = ['PUT', 'OPTIONS', 'POST'])
 def updateAppointment(startTime, description):
     if description == 'None': description = None
     startTime = startTime.replace('_', ' ')
@@ -267,15 +267,21 @@ def isTimeOccupied(startTime, duration):
              return True
 
 #Adds appointment to the DB
-@app.route('/addAppointment/<patientid>/<roomnumber>/<starttime>/<duration>/<description>', methods = ['POST'])
-def addAppointment(patientID, roomNumber, startTime, duration, description):
+@app.route('/addAppointment/<insuranceNum>/<roomnumber>/<starttime>/<duration>/<description>', methods = ['POST'])
+def addAppointment(insuranceNum, roomNumber, startTime, duration, description):
     if isTimeOccupied(startTime, duration) == False:
         with sqlite3.connect(database) as connection:
             cursor = connection.cursor()
-            cursor.execute('INSERT INTO Appointment (PatientID, RoomID, StartTime, Duration, Description) VALUES (?, ?, ?, ?, ?);', (patientID, roomNumber[2], startTime, duration, description))
-            cursor.execute('INSERT INTO Appointment_Doctors (DoctorID, AppointmentID) VALUES (?, last_rowid());', (1, ))
-            return True
-    return False
+            cursor.execute('SELECT ID FROM PATIENT WHERE insurancenumber = ?;', (int(insuranceNum), ))
+            rows = cursor.fetchall()
+            if len(rows) == 0:
+                return 404
+            else:
+                patientID = rows[0][0]
+                cursor.execute('INSERT INTO Appointment (PatientID, RoomID, StartTime, Duration, Description) VALUES (?, ?, ?, ?, ?);', (patientID, roomNumber[2], startTime, duration, description))
+                cursor.execute('INSERT INTO Appointment_Doctors (DoctorID, AppointmentID) VALUES (?, last_rowid());', (1, ))
+                return 200
+    return 404
 
 #Removes appointment from DB
 @app.route('/removeAppointment/<starttime>', methods = ['POST'])
@@ -285,9 +291,9 @@ def removeAppointment(startTime):
             cursor = connection.cursor()
             cursor.execute('DELETE FROM Appointment WHERE StartTime = ?;', (startTime, ))
             connection.commit()
-            return True
+            return 200
     else:
-        return False
+        return 404
 
 #Done:
 # Show all patients in the DB
